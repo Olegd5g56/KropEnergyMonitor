@@ -3,4 +3,4 @@ This simple parser application displays electricity outage schedules in Kropyvny
 The information is sourced from <a>https://kiroe.com.ua/energy<a>
 <br>
 <br>
-<img src="screenshot.jpg" align="center" alt="Описание изображения" width="250">
+<p align="center"><img src="screenshot.jpg" align="center" alt="Описание изображения" width="250"><\p>
