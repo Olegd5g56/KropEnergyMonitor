@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="round">черга</string>
+    <string name="network_error">Помилка мережі</string>
+    <string name="not_found">Інформація про графіки відключень не знайдена</string>
+    <string name="date_error">Помилка визначення дати!</string>
+    <string name="db_corrupt">База даних пошкоджена і буде видалена!</string>
+    <string name="rounds_change">Зміна розкладу на</string>
+</resources>

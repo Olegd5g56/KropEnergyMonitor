@@ -1,3 +1,9 @@
 <resources>
-    <string name="app_name">Energy monitor</string>
+    <string name="app_name" translatable="false">Energy monitor</string>
+    <string name="round">round</string>
+    <string name="network_error">Network error!!!</string>
+    <string name="not_found">Information about outage schedules not found</string>
+    <string name="date_error">Date detection error!</string>
+    <string name="db_corrupt">The database is corrupted and will be removed!</string>
+    <string name="rounds_change">Change of schedule for</string>
 </resources>

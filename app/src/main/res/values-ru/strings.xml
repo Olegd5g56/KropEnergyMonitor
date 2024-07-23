@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="round">очередь</string>
+    <string name="network_error">Ошибка сети!!!</string>
+    <string name="not_found">Информации о графиках отключений не найдено</string>
+    <string name="date_error">Ошибка определения даты!</string>
+    <string name="db_corrupt">База данных повреждена и будет удалена!</string>
+    <string name="rounds_change">Изменение расписания на</string>
+</resources>
