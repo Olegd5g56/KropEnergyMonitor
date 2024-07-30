@@ -25,21 +25,23 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import org.json.JSONException;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements FetchBlackoutRounds.FetchResult {
+public class MainActivity extends AppCompatActivity {
     private static final String LOG_TAG = "EnergyMonitor_Main_LOG";
     SharedPreferences sp;
     DB db;
     TextView textView;
-    Spinner spinner, date_spinner;
+    Spinner date_spinner;
 
     public static final String SP_NAME = "SP";
-    public static final String SELECTED_KEY = "selected";
+    public static final String HOUSE_KEY = "HOUSE_KEY";
     private static final int REQUEST_NOTIFICATION_PERMISSION = 42;
-    public static SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+    private static final int REQUEST_CODE = 42;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,51 +57,34 @@ public class MainActivity extends AppCompatActivity implements FetchBlackoutRoun
         sp = getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
 
         db = new DB(this);
-        try {
-            db.clean();
-        } catch (Exception e) {
-            alert(getString(R.string.db_corrupt));
-            db.clearDatabase();
-        }
+
 
         textView = findViewById(R.id.tv1);
-        spinner = findViewById(R.id.spinner);
         date_spinner = findViewById(R.id.date_spinner);
 
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Object selected_date = date_spinner.getSelectedItem();
-                if(selected_date != null) {
-                    textView.setText(db.get(selected_date.toString())[position]);
-                    sp.edit()
-                            .putInt(SELECTED_KEY, position)
-                            .apply();
-                }
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
 
         date_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                getLayoutInflater();
-                Object selected_date = date_spinner.getSelectedItem();
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_dropdown_item);
-                for(int i = 1; i <= db.get(selected_date.toString()).length; i++){
-                    adapter.add(i+" "+getString(R.string.round));
+                String selected_date = date_spinner.getSelectedItem().toString();
+                BlackoutShedule shedule = db.get(selected_date);
+                if (shedule != null){
+                    String shedule_str = shedule.toString();
+                    if(shedule_str.equals(BlackoutShedule.noShedule)) {
+                        textView.setTextSize(24);
+                        textView.setText(getString(R.string.no_blackout));
+                    }else{
+                        textView.setTextSize(60);
+                        textView.setText(getString(R.string.no_blackout));
+                    }
                 }
 
-                spinner.setAdapter(adapter);
-                int latest_position = sp.getInt(SELECTED_KEY,0);
-                spinner.setSelection(latest_position < adapter.getCount() ? latest_position : 0);
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        new FetchBlackoutRounds(this).start();
+        findViewById(R.id.settings_button).setOnClickListener((view) -> startActivityForResult(new Intent(MainActivity.this, SettingsActivity.class),REQUEST_CODE));
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, AlarmReceiver.class);
@@ -117,16 +102,58 @@ public class MainActivity extends AppCompatActivity implements FetchBlackoutRoun
             }
         }
 
+        if(sp.getInt(HOUSE_KEY,-1) == -1) startActivityForResult(new Intent(MainActivity.this, SettingsActivity.class),REQUEST_CODE);
+        FetchShedule();
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                int house_id = data.getIntExtra(HOUSE_KEY,-1);
+                if(house_id != -1) {
+                    Log.d(LOG_TAG,"onActivityResult: "+house_id);
+                    sp.edit()
+                            .putInt(HOUSE_KEY, house_id)
+                            .apply();
+                    FetchShedule();
+                }
+            }else if (sp.getInt(HOUSE_KEY,-1) == -1){
+                textView.setText(R.string.address_alert);
+            }
+        }
+    }
+
+    protected void FetchShedule(){
+        int house_id = sp.getInt(HOUSE_KEY,-1);
+        if(house_id != -1) {
+            new FetchJSON("https://kiroe.com.ua/electricity-blackout/websearch/"+house_id+"?ajax=1", (result, data) -> {
+                Log.d(LOG_TAG,"OnFetch code: "+result);
+                if(result == FetchJSON.OK){
+                    try {
+                        db.loadJSON(data);
+                    } catch (JSONException e) {
+                        this.runOnUiThread(() -> alert(getString(R.string.json_error)));
+                        Log.d(LOG_TAG,"DB could not recognize JSON!");
+                    }
+                }
+                else this.runOnUiThread(() -> alert(getString(R.string.network_error)));
+                this.runOnUiThread(this::update_date_spinner);
+            }).start();
+        }
     }
 
     protected void update_date_spinner(){
+        Log.d(LOG_TAG,"update_date_spinner");
         ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this,android.R.layout.simple_spinner_dropdown_item);
         for(String e: db.getDates()){
             adapter.add(e);
         }
         date_spinner.setAdapter(adapter);
 
-        int current_date_position = adapter.getPosition(dateFormat.format(new Date()));
+        int current_date_position = adapter.getPosition( new SimpleDateFormat("dd.MM", Locale.getDefault()).format(new Date()));
         date_spinner.setSelection(current_date_position != -1 ? current_date_position : 0);
 
         findViewById(R.id.progressBar).setVisibility(View.INVISIBLE);
@@ -139,34 +166,6 @@ public class MainActivity extends AppCompatActivity implements FetchBlackoutRoun
         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
                 (dialog, which) -> dialog.dismiss());
         alertDialog.show();
-    }
-
-    @Override
-    public void onFetched(int result, String date, String raw, String[] rounds) {
-        Log.d(LOG_TAG,"Fetched: '"+raw+"'");
-
-        switch (result){
-            case FetchBlackoutRounds.OkResult:
-                if (rounds.length == 0) {
-                    this.runOnUiThread(() -> alert(raw));
-                } else {
-                    if (date != null) {
-                        db.add(date, rounds);
-                    } else {
-                        this.runOnUiThread(() -> alert(getString(R.string.date_error)));
-                    }
-                }
-                break;
-            case FetchBlackoutRounds.BadResult:
-                this.runOnUiThread(() -> alert(getString(R.string.not_found)));
-                break;
-            case FetchBlackoutRounds.NetworkError:
-                this.runOnUiThread(() -> alert(getString(R.string.network_error)));
-                break;
-        }
-
-        this.runOnUiThread(this::update_date_spinner);
-
     }
 
 }

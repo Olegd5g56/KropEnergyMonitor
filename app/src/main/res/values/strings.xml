@@ -6,4 +6,15 @@
     <string name="date_error">Date detection error!</string>
     <string name="db_corrupt">The database is corrupted and will be removed!</string>
     <string name="rounds_change">Change of schedule for</string>
+    <string name="electrical_net">Electrical net</string>
+    <string name="settlement">Settlement</string>
+    <string name="street">Street</string>
+    <string name="house">House</string>
+    <string name="save">Save</string>
+    <string name="json_error">Invalid server response!</string>
+    <string name="cancel">Cancel</string>
+    <string name="address_alert">Please enter your address in the settings</string>
+    <string name="no_blackout">No power outages are planned</string>
+    <string name="change_shedule">The power outage schedule has been changed</string>
+    <string name="attention">Attention</string>
 </resources>

@@ -6,4 +6,15 @@
     <string name="date_error">Ошибка определения даты!</string>
     <string name="db_corrupt">База данных повреждена и будет удалена!</string>
     <string name="rounds_change">Изменение расписания на</string>
+    <string name="electrical_net">Электрическая сеть</string>
+    <string name="settlement">Населенный пункт</string>
+    <string name="street">Улица</string>
+    <string name="house">Дом</string>
+    <string name="save">Сохранить</string>
+    <string name="json_error">Неверный ответ сервера!</string>
+    <string name="cancel">Отменить</string>
+    <string name="address_alert">Пожалуйста, введите ваш адрес в настройках</string>
+    <string name="no_blackout">Отключений электроэнергии не планируется</string>
+    <string name="change_shedule">График отключения электроэнергии был изменен</string>
+    <string name="attention">Внимание</string>
 </resources>
