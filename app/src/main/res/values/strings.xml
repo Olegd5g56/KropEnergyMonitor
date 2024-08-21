@@ -17,4 +17,5 @@
     <string name="no_blackout">No power outages are planned</string>
     <string name="change_shedule">The power outage schedule has been changed</string>
     <string name="attention">Attention</string>
+    <string name="unknown_blackout">The schedule of power outages is unknown.</string>
 </resources>

@@ -17,4 +17,5 @@
     <string name="no_blackout">Отключений электроэнергии не планируется</string>
     <string name="change_shedule">График отключения электроэнергии был изменен</string>
     <string name="attention">Внимание</string>
+    <string name="unknown_blackout">График отключений электроэнергии неизвестен.</string>
 </resources>

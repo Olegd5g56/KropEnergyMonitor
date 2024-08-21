@@ -86,9 +86,9 @@ class DB extends SQLiteOpenHelper {
         Cursor c = db.rawQuery("SELECT * FROM "+tableName+" WHERE date='"+date+"'", null);
         c.moveToFirst();
         if(c.getCount() > 0) {
-            Boolean[] hours = new Boolean[24];
+            int[] hours = new int[24];
             for(int j = 0; j < 24; j++){
-                hours[j] = c.getInt(j+1) == 1;
+                hours[j] = c.getInt(j+1);
             }
             rez = new BlackoutShedule(date,hours);
             c.close();

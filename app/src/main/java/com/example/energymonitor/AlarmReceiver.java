@@ -27,7 +27,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         int house_id = sp.getInt(MainActivity.HOUSE_KEY,-1);
         if(house_id != -1) {
-            new FetchJSON("https://kiroe.com.ua/electricity-blackout/websearch/"+house_id+"?ajax=1", (result, data) -> {
+            new FetchJSON("https://kiroe.com.ua/electricity-blackout/websearch/v2/"+house_id+"?ajax=1", (result, data) -> {
                 Log.d(LOG_TAG,"OnFetch code: "+result);
                 if(result == FetchJSON.OK){
                     try {

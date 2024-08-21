@@ -70,12 +70,15 @@ public class MainActivity extends AppCompatActivity {
                 BlackoutShedule shedule = db.get(selected_date);
                 if (shedule != null){
                     String shedule_str = shedule.toString();
-                    if(shedule_str.equals(BlackoutShedule.noShedule)) {
+                    if(shedule_str.equals(BlackoutShedule.NO_SHEDULE)) {
                         textView.setTextSize(24);
                         textView.setText(getString(R.string.no_blackout));
+                    }else if(shedule_str.equals(BlackoutShedule.SHEDULE_UNKNOWN)){
+                        textView.setTextSize(24);
+                        textView.setText(getString(R.string.unknown_blackout));
                     }else{
                         textView.setTextSize(60);
-                        textView.setText(getString(R.string.no_blackout));
+                        textView.setText(shedule_str);
                     }
                 }
 
@@ -129,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
     protected void FetchShedule(){
         int house_id = sp.getInt(HOUSE_KEY,-1);
         if(house_id != -1) {
-            new FetchJSON("https://kiroe.com.ua/electricity-blackout/websearch/"+house_id+"?ajax=1", (result, data) -> {
+            new FetchJSON("https://kiroe.com.ua/electricity-blackout/websearch/v2/"+house_id+"?ajax=1", (result, data) -> {
                 Log.d(LOG_TAG,"OnFetch code: "+result);
                 if(result == FetchJSON.OK){
                     try {
